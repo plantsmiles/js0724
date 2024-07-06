@@ -57,3 +57,5 @@ gradle-app.setting
 
 # Avoid ignoring Gradle wrapper jar file
 !gradle/wrapper/gradle-wrapper.jar
+
+application-local.properties
