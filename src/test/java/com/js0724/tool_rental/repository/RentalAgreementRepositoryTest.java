@@ -1,8 +1,8 @@
 package com.js0724.tool_rental.repository;
 
 import com.js0724.tool_rental.model.RentalAgreement;
-import com.example.toolrental.model.Tool;
-import com.example.toolrental.model.ToolType;
+import com.js0724.tool_rental.model.Tool;
+import com.js0724.tool_rental.model.ToolType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;

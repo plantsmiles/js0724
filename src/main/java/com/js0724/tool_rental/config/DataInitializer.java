@@ -1,9 +1,9 @@
 package com.js0724.tool_rental.config;
 
 import com.js0724.tool_rental.model.Tool;
-import com.example.toolrental.model.ToolType;
-import com.example.toolrental.repository.ToolRepository;
-import com.example.toolrental.repository.ToolTypeRepository;
+import com.js0724.tool_rental.model.ToolType;
+import com.js0724.tool_rental.repository.ToolRepository;
+import com.js0724.tool_rental.repository.ToolTypeRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

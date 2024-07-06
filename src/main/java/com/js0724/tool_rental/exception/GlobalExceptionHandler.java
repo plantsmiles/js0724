@@ -27,5 +27,19 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(InvalidRentalDayCountException.class)
+    public ResponseEntity<String> handleInvalidRentalDayCount(InvalidRentalDayCountException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidDiscountPercentException.class)
+    public ResponseEntity<String> handleInvalidDiscountPercent(InvalidDiscountPercentException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ex.getMessage());
+    }
+
     // Add other scenarios as needed
 }
