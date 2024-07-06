@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: toolrental_e2e
+      POSTGRES_USER: e2euser
+      POSTGRES_PASSWORD: e2epassword
+    ports:
+      - "5432:5432"
+
+  app:
+    build: .
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/toolrental_e2e
+      SPRING_DATASOURCE_USERNAME: e2euser
+      SPRING_DATASOURCE_PASSWORD: e2epassword
+    ports:
+      - "8080:8080"

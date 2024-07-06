@@ -3,6 +3,7 @@ plugins {
 	id 'org.springframework.boot' version '3.3.1'
 	id 'io.spring.dependency-management' version '1.1.5'
 	id 'io.github.cdimascio.dotenv' version '2.0.0'
+	id 'com.avast.gradle.docker-compose' version '0.14.9'
 }
 
 group = 'com.js0724'
@@ -14,8 +15,13 @@ java {
 	}
 }
 
-repositories {
-	mavenCentral()
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "com.avast.gradle:gradle-docker-compose-plugin:0.14.9"
+    }
 }
 
 dependencies {
@@ -32,3 +38,43 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+sourceSets {
+    e2eTest {
+        java {
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+            srcDir file('src/e2eTest/java')
+        }
+        resources.srcDir file('src/e2eTest/resources')
+    }
+}
+
+configurations {
+    e2eTestImplementation.extendsFrom testImplementation
+    e2eTestRuntimeOnly.extendsFrom testRuntimeOnly
+}
+
+dockerCompose {
+    useComposeFiles = ['docker-compose.yml']
+    isRequiredBy(tasks.e2eTest)
+}
+
+task e2eTest(type: Test) {
+    description = 'Runs end-to-end tests.'
+    group = 'verification'
+
+    testClassesDirs = sourceSets.e2eTest.output.classesDirs
+    classpath = sourceSets.e2eTest.runtimeClasspath
+    outputs.upToDateWhen { false }
+
+    useJUnitPlatform()
+
+    systemProperty 'spring.profiles.active', 'e2e'
+
+    doFirst {
+        dockerCompose.exposeAsSystemProperties(test)
+    }
+}
+
+e2eTest.dependsOn assemble
