@@ -4,7 +4,7 @@ import com.js0724.tool_rental.dto.CheckoutRequest;
 import com.js0724.tool_rental.exception.InvalidDiscountPercentException;
 import com.js0724.tool_rental.exception.InvalidRentalDayCountException;
 import com.js0724.tool_rental.model.*;
-import com.js0724.tool_rental.repository.*;
+import com.js0724.tool_rental.repository.RentalAgreementRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,16 +17,16 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class RentalServiceTest {
 
     @Mock
-    private ToolRepository toolRepository;
+    private ToolService toolService;
 
     @Mock
-    private HolidayRepository holidayRepository;
+    private HolidayService holidayService;
 
     @Mock
     private RentalAgreementRepository rentalAgreementRepository;
@@ -47,17 +47,17 @@ class RentalServiceTest {
         chns = new Tool("CHNS", chainsaw, "Stihl");
         jakd = new Tool("JAKD", jackhammer, "DeWalt");
 
-        when(toolRepository.findById("JAKR")).thenReturn(Optional.of(jakr));
-        when(toolRepository.findById("LADW")).thenReturn(Optional.of(ladw));
-        when(toolRepository.findById("CHNS")).thenReturn(Optional.of(chns));
-        when(toolRepository.findById("JAKD")).thenReturn(Optional.of(jakd));
+        when(toolService.getToolByCode("JAKR")).thenReturn(Optional.of(jakr));
+        when(toolService.getToolByCode("LADW")).thenReturn(Optional.of(ladw));
+        when(toolService.getToolByCode("CHNS")).thenReturn(Optional.of(chns));
+        when(toolService.getToolByCode("JAKD")).thenReturn(Optional.of(jakd));
 
         when(rentalAgreementRepository.save(any(RentalAgreement.class))).thenAnswer(i -> i.getArguments()[0]);
 
         // Mock holidays
-        when(holidayRepository.findByDate(LocalDate.of(2015, 7, 3))).thenReturn(new Holiday("Independence Day (Observed)", LocalDate.of(2015, 7, 3), true));
-        when(holidayRepository.findByDate(LocalDate.of(2015, 9, 7))).thenReturn(new Holiday("Labor Day", LocalDate.of(2015, 9, 7), true));
-        when(holidayRepository.findByDate(LocalDate.of(2020, 7, 4))).thenReturn(new Holiday("Independence Day", LocalDate.of(2020, 7, 4), false));
+        when(holidayService.getHolidayByDate(LocalDate.of(2015, 7, 3))).thenReturn(new Holiday("Independence Day (Observed)", LocalDate.of(2015, 7, 3), true));
+        when(holidayService.getHolidayByDate(LocalDate.of(2015, 9, 7))).thenReturn(new Holiday("Labor Day", LocalDate.of(2015, 9, 7), true));
+        when(holidayService.getHolidayByDate(LocalDate.of(2020, 7, 4))).thenReturn(new Holiday("Independence Day", LocalDate.of(2020, 7, 4), false));
     }
 
     @Test
@@ -179,6 +179,7 @@ class RentalServiceTest {
     @Test
     void testCheckout_ToolNotFound() {
         CheckoutRequest request = new CheckoutRequest("NONEXISTENT", 1, 0, LocalDate.of(2015, 9, 3));
+        when(toolService.getToolByCode("NONEXISTENT")).thenReturn(Optional.empty());
         assertThrows(IllegalArgumentException.class, () -> rentalService.checkout(request));
     }
 

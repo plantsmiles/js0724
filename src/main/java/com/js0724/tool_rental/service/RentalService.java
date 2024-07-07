@@ -7,9 +7,8 @@ import com.js0724.tool_rental.model.Holiday;
 import com.js0724.tool_rental.model.RentalAgreement;
 import com.js0724.tool_rental.model.Tool;
 import com.js0724.tool_rental.model.ToolType;
-import com.js0724.tool_rental.repository.HolidayRepository;
 import com.js0724.tool_rental.repository.RentalAgreementRepository;
-import com.js0724.tool_rental.repository.ToolRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,34 +20,25 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
-public interface RentalService {
-    RentalAgreement checkout(CheckoutRequest request);
-    List<RentalAgreement> getAllRentalAgreements();
-    Optional<RentalAgreement> getRentalAgreementById(Long id);
-    RentalAgreement estimateRental(CheckoutRequest request);
-    String printRentalAgreement(RentalAgreement agreement);
-}
-
 @Service
-class RentalServiceImpl implements RentalService {
-    private final ToolRepository toolRepository;
-    private final HolidayRepository holidayRepository;
+public class RentalService {
+
+    private final ToolService toolService;
+    private final HolidayService holidayService;
     private final RentalAgreementRepository rentalAgreementRepository;
 
     @Autowired
-    public RentalServiceImpl(ToolRepository toolRepository, HolidayRepository holidayRepository, 
-                             RentalAgreementRepository rentalAgreementRepository) {
-        this.toolRepository = toolRepository;
-        this.holidayRepository = holidayRepository;
+    public RentalService(ToolService toolService, HolidayService holidayService, RentalAgreementRepository rentalAgreementRepository) {
+        this.toolService = toolService;
+        this.holidayService = holidayService;
         this.rentalAgreementRepository = rentalAgreementRepository;
     }
 
-    @Override
     @Transactional
     public RentalAgreement checkout(CheckoutRequest request) {
         validateCheckoutRequest(request);
 
-        Tool tool = toolRepository.findById(request.getToolCode())
+        Tool tool = toolService.getToolByCode(request.getToolCode())
                 .orElseThrow(() -> new IllegalArgumentException("Tool not found"));
 
         LocalDate dueDate = calculateDueDate(request.getCheckoutDate(), request.getRentalDayCount());
@@ -75,21 +65,18 @@ class RentalServiceImpl implements RentalService {
         return rentalAgreementRepository.save(agreement);
     }
 
-    @Override
     public List<RentalAgreement> getAllRentalAgreements() {
         return rentalAgreementRepository.findAll();
     }
 
-    @Override
     public Optional<RentalAgreement> getRentalAgreementById(Long id) {
         return rentalAgreementRepository.findById(id);
     }
 
-    @Override
     public RentalAgreement estimateRental(CheckoutRequest request) {
         validateCheckoutRequest(request);
 
-        Tool tool = toolRepository.findById(request.getToolCode())
+        Tool tool = toolService.getToolByCode(request.getToolCode())
                 .orElseThrow(() -> new IllegalArgumentException("Tool not found"));
 
         LocalDate dueDate = calculateDueDate(request.getCheckoutDate(), request.getRentalDayCount());
@@ -114,7 +101,6 @@ class RentalServiceImpl implements RentalService {
         );
     }
 
-    @Override
     public String printRentalAgreement(RentalAgreement agreement) {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM/dd/yy");
         StringBuilder sb = new StringBuilder();
@@ -163,7 +149,7 @@ class RentalServiceImpl implements RentalService {
     private boolean isChargeableDay(Tool tool, LocalDate date) {
         ToolType toolType = tool.getType();
         boolean isWeekend = date.getDayOfWeek().getValue() >= 6;
-        Holiday holiday = holidayRepository.findByDate(date);
+        Holiday holiday = holidayService.getHolidayByDate(date);
         boolean isHoliday = holiday != null;
 
         if (isHoliday && !toolType.isHolidayCharge()) return false;

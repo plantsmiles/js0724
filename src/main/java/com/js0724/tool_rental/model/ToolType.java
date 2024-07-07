@@ -7,8 +7,6 @@ public class ToolType {
     @Id
     private String code;
     private String name;
-    
-    @Column(precision = 10, scale = 2)
     private double dailyCharge;
     private boolean weekdayCharge;
     private boolean weekendCharge;
