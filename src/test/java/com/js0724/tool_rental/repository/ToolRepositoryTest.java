@@ -33,8 +33,8 @@ class ToolRepositoryTest {
 
         // then
         assertThat(found).isNotNull();
-        assertThat(found.code()).isEqualTo(ladder.code());
-        assertThat(found.brand()).isEqualTo(ladder.brand());
-        assertThat(found.type().name()).isEqualTo(ladder.type().name());
+        assertThat(found.getCode()).isEqualTo(ladder.getCode());
+        assertThat(found.getBrand()).isEqualTo(ladder.getBrand());
+        assertThat(found.getType().getName()).isEqualTo(ladder.getType().getName());
     }
 }
