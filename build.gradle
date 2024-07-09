@@ -36,40 +36,9 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
     systemProperty 'spring.config.location', 'src/test/resources/application-test.properties'
-    exclude '**/*.e2eTest.java'
 }
 
-// sourceSets {
-//     e2eTest {
-//         java {
-//             compileClasspath += main.output + test.output
-//             runtimeClasspath += main.output + test.output
-//             srcDir file('src/e2eTest/java')
-//         }
-//         resources.srcDir file('src/e2eTest/resources')
-//     }
-// }
+// In a real world scenario, we wouldn't run the ToolRentalApplicationTests as part of the test task, 
+// we would run the tests in a seperate integration or e2e test task to keep builds fast and run before PR or in CI
 
-configurations {
-    e2eTestImplementation.extendsFrom testImplementation
-    e2eTestRuntimeOnly.extendsFrom testRuntimeOnly
-}
-
-task e2eTest(type: Test) {
-    description = 'Runs end-to-end tests.'
-    group = 'verification'
-
-    // testClassesDirs = sourceSets.e2eTest.output.classesDirs
-    // classpath = sourceSets.e2eTest.runtimeClasspath
-    outputs.upToDateWhen { false }
-
-    useJUnitPlatform()
-
-    systemProperty 'spring.profiles.active', 'e2e'
-
-    doFirst {
-        dockerCompose.exposeAsSystemProperties(test)
-    }
-}
-
-e2eTest.dependsOn assemble
+// I would also setup up some type of test coverage report task, can be a vanity metric but its good to know how much of the code is being tested and to find holes
