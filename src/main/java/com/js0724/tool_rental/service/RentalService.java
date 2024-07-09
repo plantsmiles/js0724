@@ -15,10 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class RentalService {
@@ -136,25 +138,62 @@ public class RentalService {
 
     private int calculateChargeDays(Tool tool, LocalDate checkoutDate, LocalDate dueDate) {
         int chargeDays = 0;
-        LocalDate currentDate = checkoutDate.plusDays(1);  // Start from day after checkout
+        
+        // Start from day after checkout per spec
+        LocalDate currentDate = checkoutDate.plusDays(1);  
+        
+        // Only need to get this once per reservation, but since these probably don't change much
+        // I would cache these if concerned about high throughput
+        List<Holiday> holidays = holidayService.getAllHolidays(); 
+
         while (!currentDate.isAfter(dueDate)) {
-            if (isChargeableDay(tool, currentDate)) {
+            if (isChargeableDay(tool, currentDate, holidays)) {
                 chargeDays++;
             }
             currentDate = currentDate.plusDays(1);
         }
+
         return chargeDays;
     }
 
-    private boolean isChargeableDay(Tool tool, LocalDate date) {
-        ToolType toolType = tool.getType();
-        boolean isWeekend = date.getDayOfWeek().getValue() >= 6;
-        Holiday holiday = holidayService.getHolidayByDate(date);
-        boolean isHoliday = holiday != null;
+    private boolean isChargeableDay(Tool tool, LocalDate date, List<Holiday> holidays) {
+    ToolType toolType = tool.getType();
+    boolean isWeekend = date.getDayOfWeek().getValue() >= 6;
+    
+    boolean isHoliday = holidays.stream()
+        .anyMatch(h -> isAffectedByHoliday(date, h));
 
-        if (isHoliday && !toolType.isHolidayCharge()) return false;
-        if (isWeekend && !toolType.isWeekendCharge()) return false;
-        return toolType.isWeekdayCharge() || isWeekend || isHoliday;
+    // If it's a holiday and the tool doesn't charge for holidays, it's not chargeable
+    if (isHoliday && !toolType.isHolidayCharge()) {
+        return false;
+    }
+
+    // If it's a weekend and the tool doesn't charge for weekends, it's not chargeable
+    if (isWeekend && !toolType.isWeekendCharge()) {
+        return false;
+    }
+
+    // Otherwise, it's chargeable if it's a weekday, or if weekend/holiday charges apply
+    return toolType.isWeekdayCharge() || (isWeekend && toolType.isWeekendCharge()) || (isHoliday && toolType.isHolidayCharge());
+}
+
+    private boolean isAffectedByHoliday(LocalDate date, Holiday holiday) {
+        LocalDate holidayDate = holiday.getDate();
+
+        if (!holiday.isObservedOnWeekday()) {
+            return date.equals(holidayDate);
+        }
+
+        // If the holiday is on a weekend, but observed on a weekday
+        if (holidayDate.getDayOfWeek() == DayOfWeek.SATURDAY) {
+            return date.equals(holidayDate) || date.equals(holidayDate.minusDays(1));
+        }
+
+        if (holidayDate.getDayOfWeek() == DayOfWeek.SUNDAY) {
+            return date.equals(holidayDate) || date.equals(holidayDate.plusDays(1));
+        }
+
+        return date.equals(holidayDate);
     }
 
     private BigDecimal calculatePreDiscountCharge(BigDecimal dailyCharge, int chargeDays) {

@@ -32,15 +32,11 @@ public class ToolTypeServiceTest {
     void setUp() {
         toolType1 = new ToolType("JAKR", "Jackhammer", 2.99, true, false, false);
         toolType2 = new ToolType("LADW", "Ladder", 1.99, true, true, false);
-
-        when(toolTypeRepository.findAll()).thenReturn(Arrays.asList(toolType1, toolType2));
-        when(toolTypeRepository.findById("JAKR")).thenReturn(Optional.of(toolType1));
-        when(toolTypeRepository.findById("LADW")).thenReturn(Optional.of(toolType2));
-        when(toolTypeRepository.findById("NONEXISTENT")).thenReturn(Optional.empty());
     }
 
     @Test
     void testGetAllToolTypes() {
+        when(toolTypeRepository.findAll()).thenReturn(Arrays.asList(toolType1, toolType2));
         List<ToolType> result = toolTypeService.getAllToolTypes();
         assertNotNull(result);
         assertEquals(2, result.size());
@@ -51,6 +47,7 @@ public class ToolTypeServiceTest {
 
     @Test
     void testGetToolTypeByCode_ExistingToolType() {
+        when(toolTypeRepository.findById("JAKR")).thenReturn(Optional.of(toolType1));
         Optional<ToolType> result = toolTypeService.getToolTypeByCode("JAKR");
         assertTrue(result.isPresent());
         assertEquals(toolType1, result.get());
@@ -59,6 +56,7 @@ public class ToolTypeServiceTest {
 
     @Test
     void testGetToolTypeByCode_NonExistingToolType() {
+        when(toolTypeRepository.findById("NONEXISTENT")).thenReturn(Optional.empty());
         Optional<ToolType> result = toolTypeService.getToolTypeByCode("NONEXISTENT");
         assertFalse(result.isPresent());
         verify(toolTypeRepository).findById("NONEXISTENT");

@@ -32,15 +32,11 @@ public class ToolServiceTest {
     void setUp() {
         tool1 = new Tool("TOOL1", null, "Brand1");
         tool2 = new Tool("TOOL2", null, "Brand2");
-
-        when(toolRepository.findAll()).thenReturn(Arrays.asList(tool1, tool2));
-        when(toolRepository.findById("TOOL1")).thenReturn(Optional.of(tool1));
-        when(toolRepository.findById("TOOL2")).thenReturn(Optional.of(tool2));
-        when(toolRepository.findById("NONEXISTENT")).thenReturn(Optional.empty());
     }
 
     @Test
     void testGetAllTools() {
+        when(toolRepository.findAll()).thenReturn(Arrays.asList(tool1, tool2));
         List<Tool> tools = toolService.getAllTools();
         assertNotNull(tools);
         assertEquals(2, tools.size());
@@ -51,6 +47,7 @@ public class ToolServiceTest {
 
     @Test
     void testGetToolByCode_ExistingTool() {
+        when(toolRepository.findById("TOOL1")).thenReturn(Optional.of(tool1));
         Optional<Tool> foundTool = toolService.getToolByCode("TOOL1");
         assertTrue(foundTool.isPresent());
         assertEquals(tool1, foundTool.get());
@@ -59,6 +56,7 @@ public class ToolServiceTest {
 
     @Test
     void testGetToolByCode_NonExistingTool() {
+        when(toolRepository.findById("NONEXISTENT")).thenReturn(Optional.empty());
         Optional<Tool> foundTool = toolService.getToolByCode("NONEXISTENT");
         assertFalse(foundTool.isPresent());
         verify(toolRepository).findById("NONEXISTENT");

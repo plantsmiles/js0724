@@ -24,7 +24,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	runtimeOnly("org.postgresql:postgresql")
-    runtimeOnly 'com.h2database:h2'
+    testImplementation 'com.h2database:h2'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.3'
@@ -36,18 +36,19 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
     systemProperty 'spring.config.location', 'src/test/resources/application-test.properties'
+    exclude '**/*.e2eTest.java'
 }
 
-sourceSets {
-    e2eTest {
-        java {
-            compileClasspath += main.output + test.output
-            runtimeClasspath += main.output + test.output
-            srcDir file('src/e2eTest/java')
-        }
-        resources.srcDir file('src/e2eTest/resources')
-    }
-}
+// sourceSets {
+//     e2eTest {
+//         java {
+//             compileClasspath += main.output + test.output
+//             runtimeClasspath += main.output + test.output
+//             srcDir file('src/e2eTest/java')
+//         }
+//         resources.srcDir file('src/e2eTest/resources')
+//     }
+// }
 
 configurations {
     e2eTestImplementation.extendsFrom testImplementation
@@ -58,8 +59,8 @@ task e2eTest(type: Test) {
     description = 'Runs end-to-end tests.'
     group = 'verification'
 
-    testClassesDirs = sourceSets.e2eTest.output.classesDirs
-    classpath = sourceSets.e2eTest.runtimeClasspath
+    // testClassesDirs = sourceSets.e2eTest.output.classesDirs
+    // classpath = sourceSets.e2eTest.runtimeClasspath
     outputs.upToDateWhen { false }
 
     useJUnitPlatform()

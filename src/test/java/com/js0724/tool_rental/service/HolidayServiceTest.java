@@ -33,14 +33,14 @@ public class HolidayServiceTest {
     @BeforeEach
     void setUp() {
         holiday = new Holiday("Independence Day", specificDate, true);
-        when(holidayRepository.findAll()).thenReturn(Arrays.asList(holiday));
-        when(holidayRepository.findByDateBetween(startDate, endDate)).thenReturn(Arrays.asList(holiday));
-        when(holidayRepository.findByDate(specificDate)).thenReturn(holiday);
     }
 
     @Test
     void testGetAllHolidays() {
+        when(holidayRepository.findAll()).thenReturn(Arrays.asList(holiday));
+
         List<Holiday> holidays = holidayService.getAllHolidays();
+
         assertNotNull(holidays);
         assertFalse(holidays.isEmpty());
         assertEquals(1, holidays.size());
@@ -50,6 +50,8 @@ public class HolidayServiceTest {
 
     @Test
     void testGetHolidaysBetweenDates() {
+        when(holidayRepository.findByDateBetween(startDate, endDate)).thenReturn(Arrays.asList(holiday));
+
         List<Holiday> holidays = holidayService.getHolidaysBetweenDates(startDate, endDate);
         assertNotNull(holidays);
         assertFalse(holidays.isEmpty());
@@ -60,6 +62,8 @@ public class HolidayServiceTest {
 
     @Test
     void testGetHolidayByDate() {
+        when(holidayRepository.findByDate(specificDate)).thenReturn(holiday);
+
         Holiday result = holidayService.getHolidayByDate(specificDate);
         assertNotNull(result);
         assertEquals(holiday, result);
