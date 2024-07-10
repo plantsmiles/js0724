@@ -48,14 +48,14 @@ This separation helps manage complexity, facilitates focused testing, and improv
 
 ### Service Layer
 
-We've implemented a service layer (e.g., RentalService) to encapsulate business logic. This approach:
+I've implemented a service layer (e.g., RentalService) to encapsulate business logic. This approach:
 - Keeps controllers thin and focused on request/response handling
 - Allows for reuse of business logic across different parts of the application
 - Facilitates easier unit testing of business logic
 
 ### Repository Pattern
 
-We use Spring Data JPA repositories to abstract the data layer. This decision:
+I use Spring Data JPA repositories to abstract the data layer. This decision:
 - Simplifies database operations
 - Allows for easy switching between different database implementations
 - Provides a consistent interface for data access
@@ -73,7 +73,7 @@ Testing strategy I would follow:
 - **Integration Tests**: Test the interaction between components (TODO)
 - **E2E Tests**: Simulate real user scenarios, testing the entire system, thin as most brittle
 
-Testing is crucial for verifying the logic and establishing a contract within the code. Our emphasis on unit tests ensures that we can run tests frequently without the overhead of external dependencies.
+Testing is crucial for verifying the logic and establishing a contract within the code. My emphasis on unit tests ensures that we can run tests frequently without the overhead of external dependencies.
 
 ### Docker Integration
 
@@ -98,13 +98,13 @@ We've implemented custom exceptions (e.g., InvalidRentalDayCountException) to pr
 
 1. **Separation of Concerns**: By adhering to the MVC pattern and introducing a service layer, creating a modular, maintainable codebase where each component has a clear, single responsibility.
 
-2. **Immutable Data Models**: We've designed our data models (e.g., Tool, ToolType) to be immutable where possible. This decision enhances thread safety and simplifies reasoning about the application's state.
+2. **Immutable Data Models**: We've designed the data models (e.g., Tool, ToolType) to be immutable where possible. This decision enhances thread safety and simplifies reasoning about the application's state.
 
 3. **Use of BigDecimal for Financial Calculations**: To ensure precision in financial calculations, we use BigDecimal instead of floating-point types.
 
-4. **Comprehensive Testing Suite**: Our extensive test coverage, including unit, and E2E tests, ensures the reliability and correctness of the application.
+4. **Comprehensive Testing Suite**: The extensive test coverage, including unit, and E2E tests, ensures the reliability and correctness of the application.
 
-5. **Docker Integration**: By containerizing our application and its dependencies, we ensure consistency across different environments and simplify the development and deployment processes.
+5. **Docker Integration**: By containerizing the application and its dependencies, we ensure consistency across different environments and simplify the development and deployment processes.
 
 6. **Flexible Holiday Handling**: Instead of hardcoding holidays, we've implemented a flexible system that allows for easy addition and modification of holidays directly into the databse.
 
